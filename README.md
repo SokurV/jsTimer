@@ -3,4 +3,4 @@ freeCodeCampProject
 
 Tech stack: React, SASS, Webpack
 
-GitHub Page: 
+GitHub Page: https://sokurv.github.io/jsTimer/dist/
