@@ -93,7 +93,7 @@ export default class JsTimer extends React.Component{
                 this.setState((prevState)=>{
                     let prevBreak = prevState['breakLengthMinuteValue']
                     return {
-                        breakLengthMinuteValue: prevBreak >= 0 && prevBreak <= 58?
+                        breakLengthMinuteValue: prevBreak >= 0 && prevBreak <= 59?
                             ++prevBreak
                             :'00'
                     }
@@ -102,7 +102,7 @@ export default class JsTimer extends React.Component{
             case 'session-button-up':
                 this.setState((prevState)=>{
                     let prevSession = prevState['sessionLengthMinuteValue']
-                    if(prevSession >= 0 && prevSession <= 58){
+                    if(prevSession >= 0 && prevSession <= 59){
                         return {
                             sessionLengthMinuteValue: ++prevSession,
                             minutesValue: this.formatCorrector(++prevState['minutesValue'])
