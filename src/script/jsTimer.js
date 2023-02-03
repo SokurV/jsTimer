@@ -4,48 +4,55 @@ export default class JsTimer extends React.Component{
     constructor(props){
         super(props)
         this.state = {
-            breakLengthMinuteValue: '5',
-            sessionLengthMinuteValue: '25',
-            minutesValue: '25',
+            breakLengthMinuteValue: '1',
+            sessionLengthMinuteValue: '5',
+            minutesValue: '05',
             secondsValue: '00',
         }
-        this.run = this.run.bind(this)
+        this.start = this.start.bind(this)
         this.pause = this.pause.bind(this)
         this.reset = this.reset.bind(this)
+        this.increment = this.increment.bind(this)
+        this.decrement = this.decrement.bind(this)
+        this.formatCorrector = this.formatCorrector.bind(this)
     }
 
-    run(){
-        document.getElementById('start-button').setAttribute('disabled', 'true')
+    start(){
+        ['start-button', 'break-button-up', 'break-button-down', 'session-button-up', 'session-button-down'].forEach(buttonId => {
+            document.getElementById(buttonId).setAttribute('disabled', 'true')
+        });
+
         let audio = document.querySelector('.audio_alarm')
 
-        this.intervalId = setInterval(()=>{
+        this.intervalId = setInterval(()=>{  
             this.setState((prevState)=>{
                 let prevSecond = prevState['secondsValue']
                 let prevMinute = prevState['minutesValue']
                 let breakLength = prevState['breakLengthMinuteValue']
 
-                if(+prevMinute == +breakLength && +prevSecond == 0){
-                    document.querySelector('.timer-value_style').classList.add('timer-value_alert') //Должен исчезнуть при нажатии reset
+                if(+prevMinute <= +breakLength && +prevSecond == 0){
+                    document.querySelector('.timer-value_style').classList.add('timer-value_alert')
                 }
                 
                 if(+prevSecond === 0 && +prevMinute === 0) {
                     audio.play()
+                    document.querySelector('.timer-text').textContent = 'Break'
                     return {
-                        minutesValue: breakLength <= 9 ?`0${--breakLength}`:--breakLength
+                        minutesValue: this.formatCorrector(breakLength)
                     }
                 }
 
                 if(+prevSecond === 0){
                     this.setState(()=>{
                         return {
-                            minutesValue: prevMinute <= 10?`0${--prevMinute}`:--prevMinute
+                            minutesValue: this.formatCorrector(--prevMinute)
                         }
                     })
                 }
 
                 if(+prevSecond > 0) {
                     return {
-                        secondsValue: prevSecond <= 10?`0${--prevSecond}`:--prevSecond
+                        secondsValue: this.formatCorrector(--prevSecond)
                     }} else {
                     return {
                         secondsValue: '59'
@@ -61,24 +68,83 @@ export default class JsTimer extends React.Component{
     }
 
     reset(){
-        clearInterval(this.intervalId)
-        document.getElementById('start-button').removeAttribute('disabled')
+        clearInterval(this.intervalId);
+        let audio = document.querySelector('.audio_alarm')
+        audio.pause()
+        audio.currentTime = 0;
+        ['start-button', 'break-button-up', 'break-button-down', 'session-button-up', 'session-button-down'].forEach(buttonId => {
+            document.getElementById(buttonId).removeAttribute('disabled')
+        });
         document.querySelector('.timer-value_style').classList.remove('timer-value_alert')
-        this.setState((prevState)=>{
+        document.querySelector('.timer-text').textContent = 'Session'
+        this.setState(()=>{
             return {
-                minutesValue: prevState['sessionLengthMinuteValue'],
+                breakLengthMinuteValue: '1',
+                sessionLengthMinuteValue: '5',
+                minutesValue: '05',
                 secondsValue: '00'
             }
         })
     }
 
-/*     increment(value){
-        this.setState(()=>{
-            return {
-                
-            }
-        })
-    } */
+    increment(e){
+        switch(e.target.id){
+            case 'break-button-up': 
+                this.setState((prevState)=>{
+                    let prevBreak = prevState['breakLengthMinuteValue']
+                    return {
+                        breakLengthMinuteValue: prevBreak >= 0 && prevBreak <= 58?
+                            ++prevBreak
+                            :'00'
+                    }
+                })
+                break;
+            case 'session-button-up':
+                this.setState((prevState)=>{
+                    let prevSession = prevState['sessionLengthMinuteValue']
+                    if(prevSession >= 0 && prevSession <= 58){
+                        return {
+                            sessionLengthMinuteValue: ++prevSession,
+                            minutesValue: this.formatCorrector(++prevState['minutesValue'])
+                        }
+                    }
+                })
+                break;
+            default: console.log('Target button ID not defined')
+        }
+    }
+
+    decrement(e){
+        const buttonId = e.target.id
+        switch(buttonId){
+            case 'break-button-down': 
+                this.setState((prevState)=>{
+                    let prevBreak = prevState['breakLengthMinuteValue']
+                    return {
+                        breakLengthMinuteValue: prevBreak >= 2?
+                            --prevBreak:
+                            '1'
+                    }
+                })
+                break;
+            case 'session-button-down':
+                this.setState((prevState)=>{
+                    let prevSession = prevState['sessionLengthMinuteValue']
+                    if(prevSession >= 2){
+                        return {
+                            sessionLengthMinuteValue: --prevSession,
+                            minutesValue: this.formatCorrector(--prevState['minutesValue'])
+                        }
+                    }
+                })
+                break;
+            default: console.log('Target button ID not defined')
+        }
+    }
+
+    formatCorrector(inputValue){
+        return inputValue <= 9 ?`0${inputValue}`:inputValue
+    }
 
     render(){
         let breakValue = this.state.breakLengthMinuteValue
@@ -100,22 +166,22 @@ export default class JsTimer extends React.Component{
                     <div id="break-label" className="label break-label">
                         <p className="label-text_style">Break Length</p>
                         <div className="label-buttons-wrapper">
-                            <button className="button button_style">+</button>
+                            <button id="break-button-up" onClick={this.increment} className="button button_style">&#9650;</button>
                             <span className="label-value_style">
                                 {breakValue}
                             </span>
-                            <button className="button button_style">-</button>
+                            <button id="break-button-down" onClick={this.decrement} className="button button_style">&#9660;</button>
                         </div>
                     </div>
 
                     <div id="session-label" className="label session-label">
                         <p className="label-text_style">Session Length</p>
                         <div className="label-buttons-wrapper">
-                            <button className="button button_style">+</button>
+                            <button id="session-button-up" onClick={this.increment} className="button button_style">&#9650;</button>
                             <span className="label-value_style">
                                 {sessionValue}
                             </span>
-                            <button className="button button_style">-</button>
+                            <button id="session-button-down" onClick={this.decrement} className="button button_style">&#9660;</button>
                         </div>
                     </div>
                 </div>
@@ -128,9 +194,9 @@ export default class JsTimer extends React.Component{
                 </div>
 
                 <div className="timer-buttons">
-                    <button id="start-button" onClick={this.run} className="button button_style">1</button>
-                    <button onClick={this.pause} className="button button_style">2</button>
-                    <button onClick={this.reset} className="button button_style">3</button>
+                    <button id="start-button" onClick={this.start} className="button button_style">&#9658;</button>
+                    <button onClick={this.pause} className="button button_style">||</button>
+                    <button onClick={this.reset} className="button button_style">&#8635;</button>
                 </div>
 
                 <audio className="audio_alarm" src="./audio-alarm.wav" preload="true"></audio>

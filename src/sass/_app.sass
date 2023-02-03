@@ -16,6 +16,10 @@
 /* .header_style
     border: 2px solid black */
 
+.header
+    margin: 0px 20px
+    margin-top: 16px
+
 .header__text_style
     text-align: center
     color: beige
@@ -57,25 +61,36 @@
     height: 40px
     margin: 8px
     padding: auto
+    text-align: center
 
 .button_style
     border: 2px solid black
     border-radius: 50%
+    font-family: Helvetica, sans-serif
     font-size: 24px
     font-weight: 400
     cursor: pointer
     transition: 300ms
+
+.button_style:hover
+    border-radius: 6px
     
 .button_style:active
     background-color: #ccc
     transform: scale(0.93)
     transition: 0ms
 
-//.timer-display
+.timer-display
+    display: flex
+    flex-direction: column
+    justify-content: space-evenly
+    align-items: center
 
-//.timer-display_style
+.timer-display_style
+    border-radius: 12px
 
-//.timer-text
+.timer-text
+    margin-top: 16px
 
 .timer-text_style
     @extend .label-text_style
@@ -90,7 +105,21 @@
 
 .timer-value_alert
     color: red
-//.timer-buttons */
+
+.timer-buttons
+    margin-bottom: 16px
+
+@media (max-width: 420px)
+    .timer-control
+        flex-direction: column
+
+@media (orientation: landscape) and (min-resolution: 100dpi) //Для смартофонов
+    .timer-text
+        margin-top: 0px
+    .header
+        margin-top: 0px
+    .timer-buttons
+        margin-bottom: 0px 
 
 
 
